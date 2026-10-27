@@ -35,6 +35,8 @@ const PREVIEW_BLEND = 0.35;
 /** Side-step so the landmark stays visible beside the right-hand panel on wide screens. */
 const PANEL_SIDE_OFFSET = 6;
 const WIDE_QUERY = '(min-width: 900px)';
+const PULL_BACK_PER_ASPECT = 0.8;
+const MAX_PULL_BACK = 2;
 const UP = new Vector3(0, 1, 0);
 
 interface View {
@@ -65,16 +67,26 @@ interface Ctx {
 
 // --- Camera views ------------------------------------------------------------------
 
+/** Portrait screens see a narrow slice of the valley, so the overview pulls back to fit. */
+function portraitPullBack(): number {
+  const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+  return aspect >= 1 ? 1 : Math.min(MAX_PULL_BACK, Math.max(1, PULL_BACK_PER_ASPECT / aspect));
+}
+
 function overview(): View {
-  return { position: vec3(CAMERA.overviewPosition), target: vec3(CAMERA.overviewTarget) };
+  const target = vec3(CAMERA.overviewTarget);
+  const offset = vec3(CAMERA.overviewPosition).sub(target).multiplyScalar(portraitPullBack());
+  return { position: target.clone().add(offset), target };
 }
 
 function previewView(landmark: Landmark | undefined): View {
   const view = overview();
   if (!landmark) return view;
+  // On portrait screens drifting would push neighbouring signposts off-screen.
+  const blend = portraitPullBack() > 1 ? 0 : PREVIEW_BLEND;
   return {
-    position: view.position.lerp(landmark.view.position, PREVIEW_BLEND),
-    target: view.target.lerp(landmark.view.target, PREVIEW_BLEND),
+    position: view.position.lerp(landmark.view.position, blend),
+    target: view.target.lerp(landmark.view.target, blend),
   };
 }
 

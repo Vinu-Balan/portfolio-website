@@ -49,7 +49,7 @@ function createFrame(
     breath.set(Math.sin(t) * CAMERA.breathAmplitude, Math.sin(t * 1.3) * CAMERA.breathAmplitude, 0);
     world.camera.position.copy(rig.position).add(breath);
     world.camera.lookAt(rig.target);
-    postFx.render(world.scene, world.camera, elapsed);
+    postFx.render(world.scene, world.camera, frozen ? 0 : elapsed);
   };
 }
 

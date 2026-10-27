@@ -97,7 +97,8 @@ body.is-world .main {
   pointer-events: none;
 }
 
-body.is-world .main > * {
+/* Only the title menu is a solid surface; the HUD layer is click-through except its controls. */
+body.is-world .main > .title-menu {
   pointer-events: auto;
 }
 
@@ -228,6 +229,7 @@ body.is-world .main > * {
 }
 
 .hud-name {
+  white-space: nowrap;
   font-family: var(--font-display);
   font-size: 1.25rem;
   line-height: 1.2;

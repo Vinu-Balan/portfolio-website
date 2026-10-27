@@ -119,9 +119,10 @@ function landmarkNavigator(callbacks: HudCallbacks): {
 function topBar(data: Portfolio, callbacks: HudCallbacks, sound: HTMLButtonElement): HTMLElement {
   const brand = h(
     'button',
-    { type: 'button', class: 'hud-brand', 'aria-label': 'Back to title screen' },
+    { type: 'button', class: 'hud-brand' },
     h('span', { class: 'hud-name' }, data.profile.name),
     h('span', { class: 'hud-role' }, data.profile.title),
+    h('span', { class: 'visually-hidden' }, ' (back to title screen)'),
   );
   brand.addEventListener('click', callbacks.onTitle);
   return h(

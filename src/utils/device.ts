@@ -26,7 +26,6 @@ export function probeWebGL(): { supported: boolean; maxTextureSize: number } {
     const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
     if (!gl) return { supported: false, maxTextureSize: 0 };
     const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
-    gl.getExtension('WEBGL_lose_context')?.loseContext();
     return { supported: true, maxTextureSize };
   } catch {
     return { supported: false, maxTextureSize: 0 };

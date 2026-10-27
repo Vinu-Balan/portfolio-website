@@ -107,7 +107,8 @@ export function mountClassic(options: ClassicOptions): { dispose: () => void } {
     ),
   );
   document.body.classList.add('is-classic');
-  root.replaceChildren(journal);
+  // Append, not replace: in world mode #main also hosts the title menu and HUD.
+  root.append(journal);
   return {
     dispose: () => {
       journal.remove();
