@@ -1,0 +1,10 @@
+dist
+node_modules
+playwright-report
+test-results
+.lighthouseci
+tests/e2e/**/*-snapshots
+package-lock.json
+public/resume.pdf
+.playwright-mcp
+src/shaders

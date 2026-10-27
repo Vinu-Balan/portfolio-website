@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>%PAGE_TITLE%</title>
+    <meta name="description" content="%DESCRIPTION%" />
+    <meta name="author" content="%NAME%" />
+    <meta name="theme-color" content="#2a1b12" />
+    <link rel="canonical" href="%SITE_URL%" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content="%PAGE_TITLE%" />
+    <meta property="og:description" content="%DESCRIPTION%" />
+    <meta property="og:url" content="%SITE_URL%" />
+    <meta property="og:image" content="%SITE_URL%og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="%PAGE_TITLE%" />
+    <meta name="twitter:description" content="%DESCRIPTION%" />
+    <meta name="twitter:image" content="%SITE_URL%og-image.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Rye&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Special+Elite&display=swap"
+    />
+    <script type="application/ld+json">
+      %JSON_LD%
+    </script>
+  </head>
+  <body>
+    <a class="skip-resume" href="resume.pdf" target="_blank" rel="noopener">Skip to resume</a>
+
+    <div
+      id="loader"
+      class="loader"
+      role="progressbar"
+      aria-label="Loading the frontier"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+    >
+      <svg class="loader-sketch" viewBox="0 0 400 260" aria-hidden="true">
+        <path pathLength="1" d="M20 230 Q200 220 380 230" />
+        <path pathLength="1" d="M40 210 Q90 186 140 206 M300 204 Q340 188 372 204" />
+        <path pathLength="1" d="M118 146 C126 124 168 120 214 126 C238 129 252 126 266 118" />
+        <path pathLength="1" d="M266 118 C280 104 288 86 300 72" />
+        <path
+          pathLength="1"
+          d="M300 72 C308 66 322 70 336 84 C342 90 340 98 332 98 C322 98 312 94 304 96"
+        />
+        <path pathLength="1" d="M300 72 L304 60 L310 70" />
+        <path pathLength="1" d="M304 96 C296 110 288 124 280 140" />
+        <path pathLength="1" d="M280 140 C272 156 250 162 224 162 C196 164 160 164 140 160" />
+        <path pathLength="1" d="M118 146 C110 160 112 176 120 186 L116 226" />
+        <path pathLength="1" d="M140 160 C146 180 140 200 146 226" />
+        <path pathLength="1" d="M262 156 L268 194 L262 226" />
+        <path pathLength="1" d="M244 162 C246 186 238 204 234 226" />
+        <path pathLength="1" d="M120 140 C100 146 92 170 98 196" />
+        <path pathLength="1" d="M268 112 C276 98 284 86 292 76" />
+        <path pathLength="1" d="M200 126 C206 118 226 118 232 124" />
+        <path pathLength="1" d="M214 120 C210 100 212 84 220 70" />
+        <path pathLength="1" d="M224 52 a10 10 0 1 0 0.1 0" />
+        <path pathLength="1" d="M204 50 C214 47 236 47 246 51 M212 49 C213 37 233 37 235 49" />
+        <path pathLength="1" d="M218 86 C236 92 250 100 268 110" />
+        <path pathLength="1" d="M214 122 C224 134 228 146 222 156 L234 158" />
+      </svg>
+      <p class="loader-label">Saddling up… <span id="loader-percent">0%</span></p>
+      <noscript
+        ><p class="loader-label">
+          JavaScript is off. <a href="resume.pdf">Open the resume (PDF)</a>.
+        </p></noscript
+      >
+    </div>
+
+    <div id="stage" class="stage" aria-hidden="true"></div>
+    <div id="hotspots" class="hotspots"></div>
+    <main id="main" class="main"></main>
+    <div id="panel-root"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
