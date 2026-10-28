@@ -13,33 +13,21 @@ export interface ModeDecision {
 
 export interface DeviceSignals {
   readonly reducedMotion: boolean;
+  /** API presence only; a context that still fails to create falls back to classic later. */
   readonly webgl: boolean;
-  readonly maxTextureSize: number;
   readonly deviceMemoryGb: number | null;
   readonly cores: number | null;
 }
 
-/** Probe WebGL once on a throwaway canvas; we never keep this context around. */
-export function probeWebGL(): { supported: boolean; maxTextureSize: number } {
-  try {
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
-    if (!gl) return { supported: false, maxTextureSize: 0 };
-    const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
-    return { supported: true, maxTextureSize };
-  } catch {
-    return { supported: false, maxTextureSize: 0 };
-  }
-}
-
-/** Collect the signals used to pick a mode. Isolated so tests can feed fakes. */
+/**
+ * Collect the signals used to pick a mode. Deliberately avoids creating a probe WebGL
+ * context: that costs hundreds of milliseconds on phones, and the renderer makes its own.
+ */
 export function readDeviceSignals(): DeviceSignals {
-  const gl = probeWebGL();
   const nav = navigator as Navigator & { deviceMemory?: number };
   return {
     reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    webgl: gl.supported,
-    maxTextureSize: gl.maxTextureSize,
+    webgl: typeof WebGLRenderingContext !== 'undefined',
     deviceMemoryGb: nav.deviceMemory ?? null,
     cores: navigator.hardwareConcurrency || null,
   };
@@ -49,8 +37,7 @@ export function readDeviceSignals(): DeviceSignals {
 export function isLowEnd(signals: DeviceSignals): boolean {
   const lowMemory = signals.deviceMemoryGb !== null && signals.deviceMemoryGb <= PERF.lowMemoryGb;
   const lowCores = signals.cores !== null && signals.cores <= PERF.lowCoreCount;
-  const weakGpu = signals.maxTextureSize < PERF.minTextureSize;
-  return lowMemory || lowCores || weakGpu;
+  return lowMemory || lowCores;
 }
 
 /** Decide between the 3D world and classic mode. An explicit ?mode= always wins. */
@@ -61,6 +48,14 @@ export function decideMode(flags: QueryFlags, signals: DeviceSignals): ModeDecis
   if (signals.reducedMotion) return { mode: 'classic', reason: 'reduced-motion' };
   if (isLowEnd(signals)) return { mode: 'classic', reason: 'low-end' };
   return { mode: 'world', reason: null };
+}
+
+/** GPU names that indicate CPU rendering, which cannot sustain the full-quality scene. */
+const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software|basic render/i;
+
+/** True when a WebGL renderer string describes a software rasteriser. */
+export function isSoftwareRenderer(rendererName: string): boolean {
+  return SOFTWARE_RENDERER.test(rendererName);
 }
 
 /** Sample real frame times for `durationMs` and resolve the average FPS. */

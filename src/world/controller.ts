@@ -31,7 +31,7 @@ export interface Controller {
 }
 
 /** How far towards a landmark the camera drifts when it is selected but not opened. */
-const PREVIEW_BLEND = 0.35;
+const PREVIEW_BLEND = 0.15;
 /** Side-step so the landmark stays visible beside the right-hand panel on wide screens. */
 const PANEL_SIDE_OFFSET = 6;
 const WIDE_QUERY = '(min-width: 900px)';
@@ -120,13 +120,16 @@ function setState(ctx: Ctx, state: WorldState): void {
   else title.hide();
 }
 
-function select(ctx: Ctx, index: number, move = true): void {
+/** Highlight a landmark, send the rider there, and optionally drift the camera towards it. */
+function select(ctx: Ctx, index: number, move = true): Promise<void> {
   ctx.selected = wrapIndex(index, ctx.landmarks.length);
   const landmark = ctx.landmarks[ctx.selected];
-  if (!landmark) return;
+  if (!landmark) return Promise.resolve();
   ctx.ui.hud.setSelected(landmark.id);
   ctx.ui.hotspots.setActive(landmark.id);
   if (move) void fly(ctx, previewView(landmark));
+  const { rider } = ctx.core.world;
+  return rider.travelTo(landmark.riderSpot, landmark.group.position, ctx.options.frozen);
 }
 
 function openPanel(ctx: Ctx, panelId: PanelId, returnTo: WorldState): void {
@@ -143,20 +146,20 @@ async function openLandmark(ctx: Ctx, id: string): Promise<void> {
   const index = ctx.landmarks.findIndex((l) => l.id === id);
   const landmark = ctx.landmarks[index];
   if (!landmark || ctx.state === 'panel') return;
-  select(ctx, index, false);
-  await fly(ctx, panelView(landmark));
+  // The panel opens once the camera has arrived and the rider has reached the hitching post.
+  await Promise.all([fly(ctx, panelView(landmark)), select(ctx, index, false)]);
   openPanel(ctx, landmark.panel, 'map');
 }
 
 function onPanelClosed(ctx: Ctx): void {
   ctx.core.loop.resume('panel');
   setState(ctx, ctx.panelReturn);
-  if (ctx.panelReturn === 'map') select(ctx, ctx.selected);
+  if (ctx.panelReturn === 'map') void select(ctx, ctx.selected);
 }
 
 async function startJourney(ctx: Ctx): Promise<void> {
   setState(ctx, 'map');
-  select(ctx, ctx.selected, false);
+  void select(ctx, ctx.selected, false);
   await fly(ctx, previewView(ctx.landmarks[ctx.selected]));
 }
 
@@ -197,8 +200,8 @@ function onTitleAction(ctx: Ctx, action: TitleAction): void {
 }
 
 function onCommand(ctx: Ctx, command: MapCommand): void {
-  if (command === 'next') select(ctx, ctx.selected + 1);
-  else if (command === 'previous') select(ctx, ctx.selected - 1);
+  if (command === 'next') void select(ctx, ctx.selected + 1);
+  else if (command === 'previous') void select(ctx, ctx.selected - 1);
   else if (command === 'open') void openLandmark(ctx, ctx.landmarks[ctx.selected]?.id ?? '');
   else void fly(ctx, previewView(ctx.landmarks[ctx.selected]));
 }
@@ -258,7 +261,7 @@ function createHudFor(core: Core, data: Portfolio, handlers: Handlers): Hud {
   }));
   return createHud(data, hudLandmarks, {
     onSelect: withCtx(handlers, (ctx, id: string) => {
-      select(
+      void select(
         ctx,
         ctx.landmarks.findIndex((l) => l.id === id),
       );
@@ -267,7 +270,7 @@ function createHudFor(core: Core, data: Portfolio, handlers: Handlers): Hud {
       void openLandmark(ctx, id);
     }),
     onStep: withCtx(handlers, (ctx, direction: 1 | -1) => {
-      select(ctx, ctx.selected + direction);
+      void select(ctx, ctx.selected + direction);
     }),
     onResume: withCtx(handlers, (ctx) => {
       openPanel(ctx, 'wanted', 'map');
@@ -331,7 +334,7 @@ export function createController(core: Core, options: ControllerOptions): Contro
     panelReturn: 'map',
   };
   handlers.ctx = ctx;
-  select(ctx, 0, false);
+  void select(ctx, 0, false);
   return {
     showTitle: () => {
       showTitle(ctx);

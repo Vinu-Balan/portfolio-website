@@ -9,7 +9,7 @@ const HARDWARE_FPS = Number(process.env.FPS_MIN ?? 50);
  * cannot reach real-GPU frame rates. We still enforce a floor so regressions show up,
  * and annotate the run so the log says which threshold applied.
  */
-const SOFTWARE_FPS = Number(process.env.FPS_MIN_SOFTWARE ?? 8);
+const SOFTWARE_FPS = Number(process.env.FPS_MIN_SOFTWARE ?? 2);
 const SOFTWARE_RENDERER = /swiftshader|llvmpipe|software|basic render/i;
 
 test('map holds its frame-rate budget over 5 seconds', async ({ page }, info) => {

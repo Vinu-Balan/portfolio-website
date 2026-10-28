@@ -44,6 +44,7 @@ export function seoPlugin(data: Portfolio = portfolio): Plugin {
     '%PAGE_TITLE%': `${data.profile.name} · ${data.profile.title}`,
     '%DESCRIPTION%': data.profile.pitch,
     '%NAME%': data.profile.name,
+    '%ROLE%': data.profile.title,
     '%SITE_URL%': data.siteUrl,
   };
   return {

@@ -34,18 +34,14 @@ function showClassic(
   return classic.dispose;
 }
 
-async function startWorld(
-  loader: Loader,
-  flags: QueryFlags,
-  maxTextureSize: number,
-): Promise<World> {
+async function startWorld(loader: Loader, flags: QueryFlags): Promise<World> {
   loader.setProgress(CHUNK_PROGRESS / 3);
   const { bootWorld } = await import('./world/bootWorld');
   loader.setProgress(CHUNK_PROGRESS);
   const world = await bootWorld({
     data: portfolio,
     frozen: flags.freeze,
-    maxTextureSize,
+    quality: flags.quality,
     onProgress: (p) => {
       loader.setProgress(CHUNK_PROGRESS + p * (1 - CHUNK_PROGRESS));
     },
@@ -76,12 +72,12 @@ async function boot(): Promise<void> {
   const decision = decideMode(flags, signals);
   const loader = mountLoader();
   if (decision.mode === 'classic') {
-    await loader.finish();
+    await loader.finish({ immediate: true });
     showClassic(decision.reason, signals.webgl);
     return;
   }
   try {
-    const world = await startWorld(loader, flags, signals.maxTextureSize);
+    const world = await startWorld(loader, flags);
     await loader.finish();
     world.showTitle();
     await guardFrameRate(world, flags);

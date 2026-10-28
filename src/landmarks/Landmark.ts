@@ -46,6 +46,8 @@ export interface Landmark {
   readonly anchor: Vector3;
   readonly clearance: number;
   readonly view: { readonly position: Vector3; readonly target: Vector3 };
+  /** Ground point in front of the landmark (valley side) where the rider stops. */
+  readonly riderSpot: Vector3;
   readonly attachments: Readonly<Record<string, Object3D>>;
   readonly update: (elapsed: number) => void;
 }

@@ -41,7 +41,7 @@ export const CAMERA = {
   fov: 45,
   near: 0.5,
   far: 900,
-  overviewPosition: [0, 62, 92] as const,
+  overviewPosition: [0, 84, 124] as const,
   overviewTarget: [0, 0, 0] as const,
   /** Title view, relative to the campfire landmark's base. */
   titleOffset: [-5, 5.6, 11.5] as const,
@@ -134,6 +134,20 @@ export const ATMOSPHERE = {
   sepiaAmount: 0.14,
 } as const;
 
+export const RIDER = {
+  scale: 1.55,
+  legLength: 1.0,
+  legSwing: 0.55,
+  bob: 0.12,
+  /** World units per second: a brisk lope that crosses the valley in about two seconds. */
+  speed: 17,
+  strideFrequency: 1.5,
+  turnRate: 7,
+  arriveDistance: 0.25,
+  /** Extra distance beyond a landmark's footprint where the rider stops. */
+  standOff: 2,
+} as const;
+
 export const UI = {
   panelTransitionSec: 0.45,
   toastDurationMs: 5200,
@@ -141,7 +155,15 @@ export const UI = {
 } as const;
 
 export const AUDIO = {
-  loopSeconds: 12,
   sampleRate: 22050,
-  volume: 0.5,
+  tempoBpm: 68,
+  volume: 0.35,
+  fadeMs: 1500,
 } as const;
+
+/** Tier for an index, clamped to the configured range. */
+export function tierAt(index: number): QualityTier {
+  const tier = QUALITY_TIERS[Math.min(Math.max(index, 0), QUALITY_TIERS.length - 1)];
+  if (!tier) throw new Error('No quality tiers configured');
+  return tier;
+}

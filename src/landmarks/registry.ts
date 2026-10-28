@@ -1,5 +1,5 @@
 import { Vector3 } from 'three';
-import { CAMERA, WORLD } from '../config';
+import { CAMERA, RIDER, WORLD } from '../config';
 import { campSpec } from './camp';
 import type { Landmark, LandmarkContext, LandmarkSpec } from './Landmark';
 import { sheriffSpec } from './sheriff';
@@ -28,6 +28,12 @@ export function ringPosition(
 }
 
 /** Camera sits between the landmark and the valley centre, looking back at it. */
+/** Just outside the footprint on the valley side, so paths between spots avoid buildings. */
+function riderSpotFor(base: Vector3, clearance: number): Vector3 {
+  const toCenter = new Vector3(-base.x, 0, -base.z).normalize();
+  return base.clone().addScaledVector(toCenter, clearance + RIDER.standOff);
+}
+
 function viewFor(base: Vector3): Landmark['view'] {
   const toCenter = new Vector3(-base.x, 0, -base.z).normalize();
   const position = base.clone().addScaledVector(toCenter, CAMERA.landmarkDistance);
@@ -53,6 +59,7 @@ function placeLandmark(spec: LandmarkSpec, context: LandmarkContext): Landmark {
     anchor: base.clone().setY(base.y + built.signHeight),
     clearance: built.clearance,
     view: viewFor(base),
+    riderSpot: riderSpotFor(base, built.clearance),
     attachments: built.attachments ?? {},
     update: built.update ?? (() => undefined),
   };

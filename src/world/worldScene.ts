@@ -1,5 +1,5 @@
 import { PerspectiveCamera, Scene, Vector3, type WebGLRenderer } from 'three';
-import { CAMERA, LIGHTING, QUALITY_TIERS, WORLD, type QualityTier } from '../config';
+import { CAMERA, LIGHTING, WORLD, type QualityTier } from '../config';
 import type { Portfolio } from '../content/portfolio';
 import type { BuildTracker } from '../core/loadingManager';
 import type { Landmark } from '../landmarks/Landmark';
@@ -11,6 +11,7 @@ import { createLighting, type Lighting } from '../scene/lighting';
 import { createEmbers, type Embers } from '../scene/particles';
 import { createSky } from '../scene/sky';
 import { createHeightFn, createTerrain } from '../scene/terrain';
+import { createRider, type Rider } from '../scene/rider';
 import { createTumbleweed, type Tumbleweed } from '../scene/tumbleweed';
 import { pingPong } from '../utils/easing';
 import { createRandom } from '../utils/random';
@@ -26,6 +27,7 @@ export interface WorldScene {
   readonly camera: PerspectiveCamera;
   readonly landmarks: readonly Landmark[];
   readonly tumbleweed: Tumbleweed;
+  readonly rider: Rider;
   /** Camera framing for the title screen: behind the campfire, looking over the valley. */
   readonly titleView: { readonly position: Vector3; readonly target: Vector3 };
   update(elapsed: number): void;
@@ -39,15 +41,13 @@ interface Parts {
   readonly lighting: Lighting;
   readonly grass: Grass;
   readonly embers: Embers;
+  readonly landmarks: readonly Landmark[];
+  readonly tumbleweed: Tumbleweed;
+  readonly rider: Rider;
 }
 
-function updateParts(
-  parts: Parts,
-  landmarks: readonly Landmark[],
-  tumbleweed: Tumbleweed,
-  elapsed: number,
-  frozen: boolean,
-): void {
+function updateParts(parts: Parts, elapsed: number, frozen: boolean): void {
+  const { landmarks, tumbleweed, rider } = parts;
   const time = frozen ? FROZEN_ELAPSED : elapsed;
   const dusk = frozen
     ? FROZEN_DUSK
@@ -58,21 +58,26 @@ function updateParts(
   landmarks.forEach((landmark) => {
     landmark.update(time);
   });
+  rider.update(time);
   if (!frozen) tumbleweed.update(elapsed);
 }
 
 /** Assemble the frontier valley. Each heavy step is tracked so the loader shows real progress. */
-export async function buildWorldScene(
-  renderer: WebGLRenderer,
-  data: Portfolio,
-  tracker: BuildTracker,
-  frozen: boolean,
-): Promise<WorldScene> {
+export interface BuildOptions {
+  readonly renderer: WebGLRenderer;
+  readonly data: Portfolio;
+  readonly tracker: BuildTracker;
+  readonly frozen: boolean;
+  /** Instance budgets (grass, embers) are allocated for this tier only, to keep boot cheap. */
+  readonly capacity: QualityTier;
+}
+
+export async function buildWorldScene(options: BuildOptions): Promise<WorldScene> {
+  const { renderer, data, tracker, frozen, capacity } = options;
   const random = createRandom(WORLD.seed);
   const scene = new Scene();
   const camera = new PerspectiveCamera(CAMERA.fov, 1, CAMERA.near, CAMERA.far);
   const heightAt = createHeightFn();
-  const maxTier = QUALITY_TIERS[QUALITY_TIERS.length - 1] as QualityTier;
 
   const sky = await tracker.step('sky', () => createSky(WORLD.seed));
   const lighting = createLighting(scene, sky);
@@ -85,29 +90,40 @@ export async function buildWorldScene(
   const isClear = (x: number, z: number): boolean => isClearOfLandmarks(landmarks, x, z);
   scene.add(await tracker.step('environment', () => createEnvironment(heightAt, random, isClear)));
   const grass = await tracker.step('grass', () =>
-    createGrass(heightAt, random, maxTier.grassCount, isClear),
+    createGrass(heightAt, random, capacity.grassCount, isClear),
   );
-  const embers = createEmbers(maxTier.emberCount, random);
+  const embers = createEmbers(capacity.emberCount, random);
   landmarks.find((l) => l.id === 'camp')?.attachments.fire?.add(embers.points);
   const tumbleweed = createTumbleweed(heightAt, random);
   scene.add(grass.mesh, tumbleweed.group);
-  await tracker.step('shaders', () => renderer.compile(scene, camera));
+  // Parallel compile keeps the main thread free, but three.js warns when the extension is
+  // missing (software GL), so only use it where it exists.
+  const compile = renderer.extensions.has('KHR_parallel_shader_compile')
+    ? () => renderer.compileAsync(scene, camera)
+    : () => {
+        renderer.compile(scene, camera);
+      };
+  await tracker.step('shaders', compile);
 
-  const parts: Parts = { lighting, grass, embers };
-  const campBase = landmarks.find((l) => l.id === 'camp')?.group.position ?? new Vector3();
+  const camp = landmarks.find((l) => l.id === 'camp');
+  const campBase = camp?.group.position ?? new Vector3();
+  const rider = createRider(heightAt, camp?.riderSpot ?? new Vector3(), campBase);
+  scene.add(rider.group);
+  const parts: Parts = { lighting, grass, embers, landmarks, tumbleweed, rider };
   const titleView = {
     position: campBase.clone().add(new Vector3(...CAMERA.titleOffset)),
     target: campBase.clone().add(new Vector3(...CAMERA.titleTargetOffset)),
   };
-  updateParts(parts, landmarks, tumbleweed, 0, frozen);
+  updateParts(parts, 0, frozen);
   return {
     scene,
     camera,
     landmarks,
     tumbleweed,
+    rider,
     titleView,
     update: (elapsed) => {
-      updateParts(parts, landmarks, tumbleweed, elapsed, frozen);
+      updateParts(parts, elapsed, frozen);
     },
     applyQuality: (tier, pixelRatio) => {
       lighting.applyQuality(tier);

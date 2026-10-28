@@ -41,7 +41,7 @@ describe('classic mode content parity', () => {
       ...portfolio.profile.summary,
       ...portfolio.jobs.flatMap((j) => [j.role, j.company, ...j.achievements]),
       ...portfolio.projects.flatMap((p) => [p.name, p.tagline, ...p.description]),
-      ...portfolio.skillGroups.flatMap((g) => g.skills.map((s) => s.name)),
+      ...portfolio.skillGroups.flatMap((g) => [...g.skills.map((s) => s.name), ...g.all]),
       ...portfolio.education.flatMap((e) => [e.degree, e.school]),
       ...portfolio.accomplishments,
       portfolio.contact.email,
@@ -57,6 +57,30 @@ describe('classic mode content parity', () => {
   it('gives every section an h2 heading', () => {
     const panel = renderPanel('experience', portfolio, { interactive: false });
     expect(panel.querySelector('h2')?.textContent).toBe('Experience');
+  });
+});
+
+describe('resume skills', () => {
+  it('includes every category from the resume', () => {
+    expect(portfolio.skillGroups.map((g) => g.category)).toEqual([
+      'Languages',
+      'Frontend',
+      'Backend & APIs',
+      'AI, LLM & Generative AI',
+      'Machine Learning & Data',
+      'Databases',
+      'Cloud & DevOps',
+      'Testing & Quality',
+      'Experimentation & Analytics',
+      'AI-Assisted Development',
+      'Practices',
+    ]);
+    const all = portfolio.skillGroups.flatMap((g) => g.all);
+    ['Zustand', 'Kubernetes (fundamentals)', 'Selenium', 'Confluence', 'OpenCV', 'Cursor'].forEach(
+      (skill) => {
+        expect(all).toContain(skill);
+      },
+    );
   });
 });
 

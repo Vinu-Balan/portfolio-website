@@ -14,19 +14,32 @@
     <meta property="og:title" content="%PAGE_TITLE%" />
     <meta property="og:description" content="%DESCRIPTION%" />
     <meta property="og:url" content="%SITE_URL%" />
-    <meta property="og:image" content="%SITE_URL%og-image.png" />
+    <meta property="og:image" content="%SITE_URL%og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="%PAGE_TITLE%" />
     <meta name="twitter:description" content="%DESCRIPTION%" />
-    <meta name="twitter:image" content="%SITE_URL%og-image.png" />
+    <meta name="twitter:image" content="%SITE_URL%og-image.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fonts load without blocking first paint; font-display=swap shows fallbacks meanwhile. -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Rye&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Special+Elite&display=swap"
+    />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Rye&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Special+Elite&display=swap"
+      media="print"
+      onload="this.media = 'all'"
     />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Rye&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Special+Elite&display=swap"
+    /></noscript>
     <script type="application/ld+json">
       %JSON_LD%
     </script>
@@ -68,6 +81,9 @@
         <path pathLength="1" d="M218 86 C236 92 250 100 268 110" />
         <path pathLength="1" d="M214 122 C224 134 228 146 222 156 L234 158" />
       </svg>
+      <p class="loader-name">%NAME%</p>
+      <p class="loader-role">%ROLE%</p>
+      <p class="loader-pitch">%DESCRIPTION%</p>
       <p class="loader-label">Saddling up… <span id="loader-percent">0%</span></p>
       <noscript
         ><p class="loader-label">

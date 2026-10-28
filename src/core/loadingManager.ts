@@ -3,7 +3,7 @@ import { LoadingManager } from 'three';
 export interface BuildTracker {
   readonly manager: LoadingManager;
   /** Run one build step as a tracked "item" so progress reflects real work done. */
-  step<T>(name: string, build: () => T): Promise<T>;
+  step<T>(name: string, build: () => T | Promise<T>): Promise<T>;
 }
 
 /** rAF never fires in a background tab, so the timeout keeps loading moving there. */
@@ -34,10 +34,10 @@ export function createBuildTracker(
   };
   return {
     manager,
-    step: async <T>(name: string, build: () => T): Promise<T> => {
+    step: async <T>(name: string, build: () => T | Promise<T>): Promise<T> => {
       manager.itemStart(name);
       await nextFrame();
-      const result = build();
+      const result = await build();
       manager.itemEnd(name);
       return result;
     },

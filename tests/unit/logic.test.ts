@@ -2,7 +2,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { PERF, QUALITY_TIERS } from '../../src/config';
 import { commandForKey } from '../../src/core/input';
 import { createQualityManager, initialTierIndex } from '../../src/core/qualityManager';
-import { decideMode, isLowEnd, type DeviceSignals } from '../../src/utils/device';
+import {
+  decideMode,
+  isLowEnd,
+  isSoftwareRenderer,
+  type DeviceSignals,
+} from '../../src/utils/device';
 import { pingPong } from '../../src/utils/easing';
 import { average, clamp, smoothstep, wrapIndex } from '../../src/utils/math';
 import { createRandom, fbm } from '../../src/utils/random';
@@ -11,7 +16,6 @@ import { buildMailto, validateTelegram } from '../../src/utils/validation';
 const capable: DeviceSignals = {
   reducedMotion: false,
   webgl: true,
-  maxTextureSize: 16384,
   deviceMemoryGb: 8,
   cores: 8,
 };
@@ -51,28 +55,35 @@ describe('seeded randomness', () => {
 
 describe('mode decision', () => {
   it('uses the world on capable hardware', () => {
-    expect(decideMode({ mode: null, freeze: false }, capable).mode).toBe('world');
+    expect(decideMode({ mode: null, freeze: false, quality: null }, capable).mode).toBe('world');
   });
 
   it('serves classic mode for reduced motion, no WebGL and low-end devices', () => {
-    const flags = { mode: null, freeze: false } as const;
+    const flags = { mode: null, freeze: false, quality: null } as const;
     expect(decideMode(flags, { ...capable, reducedMotion: true }).reason).toBe('reduced-motion');
     expect(decideMode(flags, { ...capable, webgl: false }).reason).toBe('no-webgl');
     expect(decideMode(flags, { ...capable, deviceMemoryGb: 1 }).reason).toBe('low-end');
   });
 
   it('honours explicit ?mode=, but never forces 3D without WebGL', () => {
-    expect(decideMode({ mode: 'classic', freeze: false }, capable).mode).toBe('classic');
-    expect(
-      decideMode({ mode: 'world', freeze: false }, { ...capable, reducedMotion: true }).mode,
-    ).toBe('world');
-    expect(decideMode({ mode: 'world', freeze: false }, { ...capable, webgl: false }).mode).toBe(
+    expect(decideMode({ mode: 'classic', freeze: false, quality: null }, capable).mode).toBe(
       'classic',
     );
+    expect(
+      decideMode(
+        { mode: 'world', freeze: false, quality: null },
+        { ...capable, reducedMotion: true },
+      ).mode,
+    ).toBe('world');
+    expect(
+      decideMode({ mode: 'world', freeze: false, quality: null }, { ...capable, webgl: false })
+        .mode,
+    ).toBe('classic');
   });
 
-  it('flags weak GPUs as low-end', () => {
-    expect(isLowEnd({ ...capable, maxTextureSize: 2048 })).toBe(true);
+  it('flags low-memory or low-core devices as low-end', () => {
+    expect(isLowEnd({ ...capable, cores: 2 })).toBe(true);
+    expect(isLowEnd({ ...capable, deviceMemoryGb: 2 })).toBe(true);
     expect(isLowEnd(capable)).toBe(false);
   });
 });
@@ -101,6 +112,15 @@ describe('adaptive quality manager', () => {
     const manager = createQualityManager(0, vi.fn());
     feed(manager, 60, PERF.sampleWindowSec * (PERF.upgradeStreakRequired + 1));
     expect(manager.tier().name).toBe('medium');
+  });
+
+  it('starts software renderers on the lowest tier', () => {
+    expect(initialTierIndex(false, 16384, true)).toBe(0);
+    expect(isSoftwareRenderer('ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)))')).toBe(
+      true,
+    );
+    expect(isSoftwareRenderer('llvmpipe (LLVM 15.0.7, 256 bits)')).toBe(true);
+    expect(isSoftwareRenderer('ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11)')).toBe(false);
   });
 
   it('picks a cautious starting tier for mobile and weak GPUs', () => {

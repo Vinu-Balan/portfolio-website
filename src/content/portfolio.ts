@@ -48,9 +48,13 @@ export interface Skill {
 }
 
 export interface SkillGroup {
+  /** Workbench tool shown as the tab icon (see .tool-* in panels.css). */
   readonly tool: string;
   readonly category: string;
+  /** Headline skills drawn as stat meters. Levels are self-assessed; tune freely. */
   readonly skills: readonly Skill[];
+  /** Every skill in this category, exactly as listed on the resume. */
+  readonly all: readonly string[];
 }
 
 export interface Education {
@@ -95,7 +99,8 @@ export const portfolio: Portfolio = {
       'Software Engineer with 3+ years at AT&T building production web applications, backend services and AI-powered features end to end.',
       'I build responsive, high-performance interfaces with React, Next.js and TypeScript, and RESTful microservices with Python (FastAPI, Flask) and Node.js on Microsoft Azure with Docker and CI/CD.',
       'I develop and productionize LLM applications — Retrieval-Augmented Generation with data ingestion, embeddings, vector search, query rewriting and real-time streaming — and trained a custom machine-learning translation service used in production.',
-      'Experienced in A/B testing (Adobe Target, Adobe Analytics), unit and end-to-end testing, performance tuning, code reviews and mentoring. Winner, AT&T Bounty Sprintathon 2025 ($50K).',
+      'Experienced in A/B testing and experimentation (Adobe Target, Adobe Analytics), unit and end-to-end testing, performance tuning, code reviews and mentoring.',
+      'Daily user of AI-assisted development tools (Claude Code, GitHub Copilot, Cursor), validating output through review, tests and secure coding standards. Winner, AT&T Bounty Sprintathon 2025 ($50K).',
     ],
   },
   jobs: [
@@ -111,7 +116,9 @@ export const portfolio: Portfolio = {
         'Trained and shipped an English→Spanish machine-learning translation service, exposed to production apps via REST.',
         'Designed server-side A/B experimentation with Next.js and Adobe Target; analysed results in Adobe Analytics.',
         'Built Chrome extensions, automation tools and Next.js apps that removed vendor dependencies and saved the team 80+ hours.',
+        'Used AI-assisted development tools (GitHub Copilot, Claude Code, Cursor) for code generation, refactoring, unit tests and documentation, validated through peer review and automated testing.',
         'Mentored junior engineers and championed code reviews, reusable components and maintainable architecture.',
+        'Shipped through CI/CD with Jenkins and Git in Scrum teams, turning business requirements into production features with product managers, designers and engineers.',
       ],
       tech: [
         'React',
@@ -133,7 +140,8 @@ export const portfolio: Portfolio = {
       achievements: [
         'Developed modular, reusable React components supporting multiple product surfaces in production.',
         'Translated product requirements into production-ready features with product managers and designers.',
-        'Analysed user data in Adobe Analytics and strengthened CI/CD workflows with Jenkins and Git.',
+        'Analysed user and product data in Adobe Analytics to identify optimisation opportunities.',
+        'Strengthened CI/CD workflows with Jenkins and Git; tracked delivery in Jira.',
       ],
       tech: ['React', 'Next.js', 'JavaScript', 'Adobe Analytics', 'Jenkins', 'Jira'],
     },
@@ -163,6 +171,8 @@ export const portfolio: Portfolio = {
       stack: [
         'Next.js',
         'TypeScript',
+        'Tailwind CSS',
+        'Python',
         'FastAPI',
         'LangChain',
         'ChromaDB',
@@ -170,6 +180,8 @@ export const portfolio: Portfolio = {
         'PostgreSQL',
         'Redis',
         'Docker',
+        'Jest',
+        'Playwright',
       ],
       repoUrl: GITHUB,
     },
@@ -181,7 +193,7 @@ export const portfolio: Portfolio = {
         'Node.js REST backend and React / Next.js dashboards so product teams configure, run and analyse experiments without engineering support.',
         'Results visualisation that drives data-informed product decisions.',
       ],
-      stack: ['React', 'Next.js', 'Node.js', 'REST APIs', 'Adobe Target'],
+      stack: ['React', 'Next.js', 'JavaScript', 'Node.js', 'REST APIs', 'Adobe Target'],
       repoUrl: GITHUB,
     },
     {
@@ -191,7 +203,7 @@ export const portfolio: Portfolio = {
       description: [
         'Resume parsing and search web app with MongoDB data models and an interactive JavaScript interface for candidate discovery.',
       ],
-      stack: ['Python', 'NLP', 'Django', 'MongoDB', 'JavaScript'],
+      stack: ['Python', 'NLP', 'Django', 'MongoDB', 'JavaScript', 'Bootstrap 5'],
       repoUrl: GITHUB,
     },
     {
@@ -207,13 +219,47 @@ export const portfolio: Portfolio = {
   ],
   skillGroups: [
     {
+      tool: 'Quill',
+      category: 'Languages',
+      skills: [
+        { name: 'JavaScript (ES6+)', level: 92 },
+        { name: 'TypeScript', level: 88 },
+        { name: 'Python', level: 86 },
+        { name: 'SQL', level: 78 },
+        { name: 'Java (working knowledge)', level: 55 },
+      ],
+      all: [
+        'JavaScript (ES6+)',
+        'TypeScript',
+        'Python',
+        'SQL',
+        'HTML5',
+        'CSS3',
+        'Java (working knowledge)',
+      ],
+    },
+    {
       tool: 'Hammer',
       category: 'Frontend',
       skills: [
         { name: 'React', level: 92 },
         { name: 'Next.js', level: 88 },
-        { name: 'TypeScript', level: 88 },
         { name: 'Tailwind / SCSS', level: 82 },
+        { name: 'Performance optimisation', level: 80 },
+      ],
+      all: [
+        'React (Hooks, Context API)',
+        'Next.js',
+        'Redux',
+        'Zustand',
+        'Tailwind CSS',
+        'SASS/SCSS',
+        'Styled Components',
+        'Responsive UI',
+        'Webpack',
+        'Vite',
+        'Chrome Extensions',
+        'Performance Optimisation (Lighthouse, Chrome DevTools)',
       ],
     },
     {
@@ -223,27 +269,151 @@ export const portfolio: Portfolio = {
         { name: 'Node.js / Express', level: 82 },
         { name: 'FastAPI / Flask', level: 84 },
         { name: 'REST & Microservices', level: 85 },
-        { name: 'PostgreSQL / MongoDB / Redis', level: 75 },
+      ],
+      all: [
+        'Node.js',
+        'Express.js',
+        'FastAPI',
+        'Flask',
+        'Django',
+        'RESTful APIs',
+        'Microservices',
+        'JSON',
+        'API Design',
+        'Object-Oriented Design',
+        'Streaming Responses',
       ],
     },
     {
       tool: 'Lantern',
-      category: 'AI & LLM',
+      category: 'AI, LLM & Generative AI',
       skills: [
         { name: 'RAG & Vector Search', level: 85 },
         { name: 'LangChain / Ollama', level: 80 },
-        { name: 'NLP & Model Training', level: 78 },
         { name: 'Prompt Engineering', level: 84 },
+      ],
+      all: [
+        'LLM APIs',
+        'Retrieval-Augmented Generation (RAG)',
+        'Prompt Engineering',
+        'LangChain',
+        'Embeddings',
+        'Vector Search',
+        'ChromaDB',
+        'Ollama',
+        'Query Rewriting',
+        'Document Scoring',
+        'Real-time Streaming UIs',
       ],
     },
     {
-      tool: 'Saddlebag',
-      category: 'Cloud, DevOps & Quality',
+      tool: 'Compass',
+      category: 'Machine Learning & Data',
       skills: [
-        { name: 'Azure & Docker', level: 80 },
+        { name: 'NLP', level: 80 },
+        { name: 'Model Training & Evaluation', level: 78 },
+        { name: 'Pandas / NumPy / Scikit-learn', level: 80 },
+      ],
+      all: [
+        'Machine Learning',
+        'NLP',
+        'Model Training & Evaluation',
+        'Feature Engineering',
+        'Pandas',
+        'NumPy',
+        'Scikit-learn',
+        'spaCy',
+        'OpenCV',
+        'Data Cleaning',
+        'Exploratory Analysis',
+      ],
+    },
+    {
+      tool: 'Strongbox',
+      category: 'Databases',
+      skills: [
+        { name: 'PostgreSQL', level: 78 },
+        { name: 'MongoDB', level: 75 },
+        { name: 'Redis', level: 72 },
+      ],
+      all: ['PostgreSQL', 'SQL', 'MongoDB', 'Redis', 'ChromaDB'],
+    },
+    {
+      tool: 'Saddlebag',
+      category: 'Cloud & DevOps',
+      skills: [
+        { name: 'Microsoft Azure', level: 80 },
+        { name: 'Docker', level: 78 },
         { name: 'CI/CD (Jenkins, Azure DevOps)', level: 78 },
-        { name: 'Playwright / Jest / PyTest', level: 82 },
-        { name: 'A/B Testing (Adobe Target)', level: 85 },
+      ],
+      all: [
+        'Microsoft Azure',
+        'Azure DevOps',
+        'AWS (fundamentals)',
+        'Docker',
+        'Kubernetes (fundamentals)',
+        'Jenkins',
+        'CI/CD',
+        'Git',
+        'Azure Monitor',
+        'Application Insights',
+      ],
+    },
+    {
+      tool: 'Spyglass',
+      category: 'Testing & Quality',
+      skills: [
+        { name: 'Playwright', level: 82 },
+        { name: 'Jest & React Testing Library', level: 82 },
+        { name: 'PyTest', level: 75 },
+      ],
+      all: [
+        'Jest',
+        'React Testing Library',
+        'Playwright',
+        'Cypress',
+        'PyTest',
+        'Selenium',
+        'Unit, Integration & End-to-End Testing',
+        'Code Reviews',
+        'Secure Coding',
+      ],
+    },
+    {
+      tool: 'Scales',
+      category: 'Experimentation & Analytics',
+      skills: [
+        { name: 'A/B Testing', level: 86 },
+        { name: 'Adobe Target', level: 85 },
+        { name: 'Adobe Analytics', level: 82 },
+      ],
+      all: ['A/B Testing', 'Adobe Target', 'Adobe Analytics', 'Server-side Experimentation'],
+    },
+    {
+      tool: 'Pocketwatch',
+      category: 'AI-Assisted Development',
+      skills: [
+        { name: 'Claude Code', level: 90 },
+        { name: 'GitHub Copilot', level: 88 },
+        { name: 'Cursor', level: 85 },
+      ],
+      all: ['Claude Code', 'GitHub Copilot', 'Cursor', 'Agentic Engineering Practices'],
+    },
+    {
+      tool: 'Lasso',
+      category: 'Practices',
+      skills: [
+        { name: 'Agile / Scrum', level: 85 },
+        { name: 'Mentoring', level: 80 },
+        { name: 'Cross-functional Collaboration', level: 85 },
+      ],
+      all: [
+        'Agile / Scrum',
+        'SDLC',
+        'Jira',
+        'Confluence',
+        'Mentoring',
+        'Cross-functional Collaboration',
       ],
     },
   ],
@@ -279,5 +449,5 @@ export const portfolio: Portfolio = {
     formspreeId: '',
   },
   resumeFile: 'resume.pdf',
-  siteUrl: 'https://vinu-balan.github.io/portfolio/',
+  siteUrl: 'https://vinu-balan.github.io/portfolio-website/',
 };

@@ -1,3 +1,4 @@
+import type { QualityTier } from '../config';
 import type { Portfolio } from '../content/portfolio';
 import { createController } from './controller';
 import { createCore } from './core';
@@ -5,8 +6,8 @@ import { createCore } from './core';
 export interface WorldOptions {
   readonly data: Portfolio;
   readonly frozen: boolean;
-  readonly maxTextureSize: number;
   readonly onProgress: (progress: number) => void;
+  readonly quality: QualityTier['name'] | null;
   /** Show classic journal mode; call `onReturn` to come back to the world. */
   readonly onJournal: (onReturn: () => void) => void;
 }

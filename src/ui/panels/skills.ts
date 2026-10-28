@@ -1,7 +1,7 @@
 import type { Portfolio, Skill, SkillGroup } from '../../content/portfolio';
 import { wrapIndex } from '../../utils/math';
 import { h } from '../component';
-import { panelSection, type PanelRenderOptions } from './shared';
+import { chipList, panelSection, type PanelRenderOptions } from './shared';
 
 const METER_SEGMENTS = 10;
 
@@ -29,8 +29,15 @@ function statMeter(skill: Skill): HTMLElement {
   );
 }
 
+/** Headline meters, then the complete resume list for the category as chips. */
 function skillList(group: SkillGroup): HTMLElement {
-  return h('ul', { class: 'skill-list' }, ...group.skills.map(statMeter));
+  return h(
+    'div',
+    { class: 'skill-set' },
+    h('ul', { class: 'skill-list' }, ...group.skills.map(statMeter)),
+    h('p', { class: 'kit-label typewriter' }, 'Full kit'),
+    chipList(group.all, `All ${group.category} skills`),
+  );
 }
 
 function staticGroups(groups: readonly SkillGroup[]): HTMLElement {
@@ -66,6 +73,7 @@ function interactiveBench(groups: readonly SkillGroup[]): HTMLElement {
       },
       h('span', { class: `tool-icon tool-${group.tool.toLowerCase()}`, 'aria-hidden': 'true' }),
       h('span', { class: 'tool-label' }, group.category),
+      h('span', { class: 'tool-count' }, `${group.all.length} skills`),
     ),
   );
   const panels = groups.map((group, i) =>

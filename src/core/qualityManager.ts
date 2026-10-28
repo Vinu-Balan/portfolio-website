@@ -10,8 +10,12 @@ export interface QualityManager {
 }
 
 /** Pick a starting tier from cheap static hints before any frames are measured. */
-export function initialTierIndex(isMobile: boolean, maxTextureSize: number): number {
-  if (maxTextureSize < PERF.minTextureSize) return 0;
+export function initialTierIndex(
+  isMobile: boolean,
+  maxTextureSize: number,
+  softwareRendering = false,
+): number {
+  if (softwareRendering || maxTextureSize < PERF.minTextureSize) return 0;
   return isMobile ? 1 : QUALITY_TIERS.length - 1;
 }
 

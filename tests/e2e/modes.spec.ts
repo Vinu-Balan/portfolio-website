@@ -100,6 +100,8 @@ test.describe('accessibility (axe)', () => {
   });
 
   test('every panel has no serious violations', async ({ page }) => {
+    // Five scans plus map round-trips are slow when WebGL falls back to a CPU rasteriser.
+    test.setTimeout(240_000);
     await gotoMap(page);
     for (const landmark of LANDMARKS) {
       await page.locator(`[data-landmark="${landmark.id}"]`).click();

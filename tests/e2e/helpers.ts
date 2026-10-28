@@ -1,7 +1,8 @@
 import { expect, type Page } from '@playwright/test';
 
 /** Frozen world: no breathing camera, fixed lighting and instant fly-tos, so hotspots hold still. */
-export const WORLD_URL = '/?mode=world&freeze=1';
+/** Pinned to high quality so snapshots do not depend on the test machine's GPU. */
+export const WORLD_URL = '/?mode=world&freeze=1&quality=high';
 export const CLASSIC_URL = '/?mode=classic';
 
 export const LANDMARKS = [

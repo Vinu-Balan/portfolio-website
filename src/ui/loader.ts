@@ -6,7 +6,7 @@ export interface Loader {
   /** Progress in [0,1]; drives the ink sketch stroke by stroke. */
   setProgress(progress: number): void;
   /** Fade out and remove from the accessibility tree. */
-  finish(): Promise<void>;
+  finish(options?: { immediate?: boolean }): Promise<void>;
 }
 
 /** Each path draws during its own slice of the progress range, so strokes appear in order. */
@@ -34,10 +34,11 @@ export function mountLoader(): Loader {
     root.setAttribute('aria-valuenow', String(percent));
   };
 
-  const finish = async (): Promise<void> => {
+  const finish = async ({ immediate = false } = {}): Promise<void> => {
     setProgress(1);
     const remaining = UI.loaderMinVisibleMs - (performance.now() - shownAt);
-    if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
+    // Classic mode has nothing to load, so it skips the minimum display time.
+    if (!immediate && remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
     root.classList.add('is-done');
     root.setAttribute('aria-hidden', 'true');
     setTimeout(() => {

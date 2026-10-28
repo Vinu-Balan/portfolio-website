@@ -5,3 +5,4 @@ test-results
 .lighthouseci
 *.log
 .playwright-mcp
+.e2e-run.log
